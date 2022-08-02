@@ -9,8 +9,10 @@ import configparser
 try:
     config = configparser.ConfigParser()
     config.read("archivo_config.ini")
-except:
+except Exception as e:
     print("No se encontro el archivo de configuración")
+    raise SystemExit from e
+    
 
 
 def enviar_correo(file=None):
@@ -38,12 +40,10 @@ def enviar_correo(file=None):
         smtpserver.close()
 
     # configuramos correo
-    to_list = []
-    for key, val in config.items("MAILS"):
-        to_list.append(val)
+    to_list = [val for key, val in config.items("MAILS")]
     to_addr = to_list
 
-    print("Se enviara correo a: " + str(to_addr) + "\n")
+    print(f"Se enviara correo a: {to_addr}" + "\n")
 
     From = config["MAIL_CFG"]["from"]
     mime_message = MIMEMultipart(_subtype="mixed")
@@ -64,7 +64,7 @@ def enviar_correo(file=None):
                 part["Content-Disposition"] = 'attachment; filename="%s"' % file
                 mime_message.attach(part)
                 print("Se adjunto Excel de manera correcta")
-        except:
+        except Exception:
             print("no se pudo adjuntar el excel")
 
     try:
